@@ -33,9 +33,13 @@ void spindle_init()
 
     // Configure variable spindle PWM and enable pin, if requried. On the Uno, PWM and enable are
     // combined unless configured otherwise.
-    SPINDLE_PWM_DDR |= (1<<SPINDLE_PWM_BIT); // Configure as PWM output pin.
+    SPINDLE_PWM_DDR |= (1<<SPINDLE_PWM_BIT | (1<<SPINDLE_PWM_BIT_M)); // Configure as PWM output pin. added mirror
     SPINDLE_TCCRA_REGISTER = SPINDLE_TCCRA_INIT_MASK; // Configure PWM output compare timer
     SPINDLE_TCCRB_REGISTER = SPINDLE_TCCRB_INIT_MASK;
+	
+    SPINDLE_TCCRA_REGISTER_M = SPINDLE_TCCRA_INIT_MASK; // Configure PWM output compare timer. added mirror
+    SPINDLE_TCCRB_REGISTER_M = SPINDLE_TCCRB_INIT_MASK;
+	
     #ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
       SPINDLE_ENABLE_DDR |= (1<<SPINDLE_ENABLE_BIT); // Configure as output pin.
     #else
@@ -93,11 +97,12 @@ void spindle_stop()
 {
   #ifdef VARIABLE_SPINDLE
     SPINDLE_TCCRA_REGISTER &= ~(1<<SPINDLE_COMB_BIT); // Disable PWM. Output voltage is zero.
+    SPINDLE_TCCRA_REGISTER_M &= ~(1<<SPINDLE_COMB_BIT_M); // Disable PWM. Output voltage is zero. Mirror
     #ifdef USE_SPINDLE_DIR_AS_ENABLE_PIN
       #ifdef INVERT_SPINDLE_ENABLE_PIN
         SPINDLE_ENABLE_PORT |= (1<<SPINDLE_ENABLE_BIT);  // Set pin to high
       #else
-        SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT); // Set pin to low
+        SPINDLE_ENABLE_PORT &= ~(1<<SPINDLE_ENABLE_BIT | 1<<SPINDLE_ENABLE_BIT_M); // Set pin to low
       #endif
     #endif
   #else
@@ -116,6 +121,7 @@ void spindle_stop()
   void spindle_set_speed(uint8_t pwm_value)
   {
     SPINDLE_OCR_REGISTER = pwm_value; // Set PWM output level.
+    SPINDLE_OCR_REGISTER_M = pwm_value; // Set PWM output level.	  
     #ifdef SPINDLE_ENABLE_OFF_WITH_ZERO_SPEED
       if (pwm_value == SPINDLE_PWM_OFF_VALUE) {
         spindle_stop();
@@ -130,8 +136,10 @@ void spindle_stop()
     #else
       if (pwm_value == SPINDLE_PWM_OFF_VALUE) {
         SPINDLE_TCCRA_REGISTER &= ~(1<<SPINDLE_COMB_BIT); // Disable PWM. Output voltage is zero.
+        SPINDLE_TCCRA_REGISTER_M &= ~(1<<SPINDLE_COMB_BIT_M); // Disable PWM. Output voltage is zero.	      
       } else {
         SPINDLE_TCCRA_REGISTER |= (1<<SPINDLE_COMB_BIT); // Ensure PWM output is enabled.
+        SPINDLE_TCCRA_REGISTER_M |= (1<<SPINDLE_COMB_BIT_M); // Ensure PWM output is enabled.	      
       }
     #endif
   }
