@@ -185,12 +185,12 @@
   #define LIMIT_DDR        DDRB
   #define LIMIT_PIN        PINB
   #define LIMIT_PORT       PORTB
-  #define X_LIMIT_BIT      1  // Uno Digital Pin 9
-  #define Y_LIMIT_BIT      2  // Uno Digital Pin 10
+  #define X_LIMIT_BIT      4  // Uno Digital Pin 9 (bit 1)
+  #define Y_LIMIT_BIT      4  // Uno Digital Pin 10 bit 2
   #ifdef VARIABLE_SPINDLE // Z Limit pin and spindle enabled swapped to access hardware PWM on Pin 11.
-    #define Z_LIMIT_BIT	   4 // Uno Digital Pin 12
+    #define Z_LIMIT_BIT	   4 // Uno Digital Pin 12 bit 4
   #else
-    #define Z_LIMIT_BIT    3  // Uno Digital Pin 11
+    #define Z_LIMIT_BIT    3  // Uno Digital Pin 11 bit 3
   #endif
   #define LIMIT_MASK       ((1<<X_LIMIT_BIT)|(1<<Y_LIMIT_BIT)|(1<<Z_LIMIT_BIT)) // All limit bits
   #define LIMIT_INT        PCIE0  // Pin change interrupt enable pin
@@ -207,6 +207,7 @@
       #define SPINDLE_ENABLE_BIT    5  // Uno Digital Pin 13 (NOTE: D13 can't be pulled-high input due to LED.)
     #else
       #define SPINDLE_ENABLE_BIT    3  // Uno Digital Pin 11
+      #define SPINDLE_ENABLE_BIT_MIRROR    1  // Uno Digital Pin 9 bit 1, same pwm output of pin 11 will be copied to pin9
     #endif
   #else
     #define SPINDLE_ENABLE_BIT    4  // Uno Digital Pin 12
@@ -248,17 +249,23 @@
   #define PROBE_MASK      (1<<PROBE_BIT)
 
   // Variable spindle configuration below. Do not change unless you know what you are doing.
-  // NOTE: Only used when variable spindle is enabled.
+  // NOTE: Only used when variable spindle is enabled. 
   #define SPINDLE_PWM_MAX_VALUE     255 // Don't change. 328p fast PWM mode fixes top value as 255.
   #ifndef SPINDLE_PWM_MIN_VALUE
     #define SPINDLE_PWM_MIN_VALUE   1   // Must be greater than zero.
   #endif
   #define SPINDLE_PWM_OFF_VALUE     0
   #define SPINDLE_PWM_RANGE         (SPINDLE_PWM_MAX_VALUE-SPINDLE_PWM_MIN_VALUE)
-  #define SPINDLE_TCCRA_REGISTER	  TCCR2A
-  #define SPINDLE_TCCRB_REGISTER	  TCCR2B
-  #define SPINDLE_OCR_REGISTER      OCR2A
-  #define SPINDLE_COMB_BIT	        COM2A1
+  #define SPINDLE_TCCRA_REGISTER	  TCCR2A   //Timer2 count/control reg A 
+  #define SPINDLE_TCCRB_REGISTER	  TCCR2B  //Timer2 count/control reg B 
+  #define SPINDLE_OCR_REGISTER      OCR2A     //Timer2 output compare reg A 
+  #define SPINDLE_COMB_BIT	        COM2A1    //Timer2 count/control reg A 
+//mirror registers in timer 1 
+  #define SPINDLE_TCCRA_REGISTER_M	  TCCR1A
+  #define SPINDLE_TCCRB_REGISTER_M	  TCCR1B
+  #define SPINDLE_OCR_REGISTER_M      OCR1A
+  #define SPINDLE_COMB_BIT_M	        COM1A1
+
 
   // Prescaled, 8-bit Fast PWM mode.
   #define SPINDLE_TCCRA_INIT_MASK   ((1<<WGM20) | (1<<WGM21))  // Configures fast PWM mode.
@@ -271,7 +278,7 @@
   #define SPINDLE_PWM_DDR	  DDRB
   #define SPINDLE_PWM_PORT  PORTB
   #define SPINDLE_PWM_BIT	  3    // Uno Digital Pin 11
-
+  #define SPINDLE_ENABLE_BIT_MIRROR    1  // Uno Digital Pin 9 (bit 1), same pwm output of pin 11 will be copied to pin10
 #endif
 
 
