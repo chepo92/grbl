@@ -278,7 +278,7 @@
   #define SPINDLE_PWM_DDR	  DDRB
   #define SPINDLE_PWM_PORT  PORTB
   #define SPINDLE_PWM_BIT	  3    // Uno Digital Pin 11
-  #define SPINDLE_ENABLE_BIT_M    1  // Uno Digital Pin 9 (bit 1), same pwm output of pin 11 will be copied to pin10
+  #define SPINDLE_PWM_BIT_M    1  // Uno Digital Pin 9 (bit 1), same pwm output of pin 11 will be copied to pin10
 #endif
 
 
